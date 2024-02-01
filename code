@@ -1,0 +1,101 @@
+def zeroOnePackage(weight,value,N,V):
+    #dp[0~N][0~V]
+    dp=[[0]*(V+1) for _ in range(N+1)]
+    weight.insert(0, 0)  # 不存在第0个物品，故插入一个0
+    value.insert(0, 0)
+    for i in range(1,N+1):
+        for j in range(weight[i],V+1):
+            dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight[i]] + value[i])
+        # for j in range(1,V+1):
+        #     if j<weight[i]:
+        #         dp[i][j]=dp[i-1][j]
+        #     else:
+        #         dp[i][j]=max(dp[i-1][j],dp[i-1][j-weight[i]]+value[i])
+    return dp[N][V]
+
+
+def zeroOnePackage2(weight,value,N,V):
+    dp=[0]*(V+1)
+    weight.insert(0, 0)  # 不存在第0个物品，故插入一个0
+    value.insert(0, 0)
+    for i in range(1,N+1):
+        for j in range(V,weight[i]-1,-1):
+            dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
+    return dp[V]
+
+
+def completePackage(weight,value,N,V):
+    dp=[0]*(V+1)
+    weight.insert(0,0)
+    value.insert(0,0)
+    for i in range(1,N+1):
+        for j in range(weight[i],V+1):
+            dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
+    return dp[V]
+
+
+def multiplePackage1(weight,value,quantity,N,V):  #三重循环
+    dp=[0]*(V+1)
+    weight.insert(0, 0)
+    value.insert(0, 0)
+    quantity.insert(0,0)
+    for i in range(1,N+1):
+        for i in range(1,N+1):
+            for j in range(V,weight[i-1],-1):
+                for k in range(0,quantity[i]+1):
+                    if j>=k*weight[i]:
+                        dp[j]=max(dp[j],dp[j-k*weight[i]]+k*value[i])
+        return dp[V]
+
+
+def multiplePackage2(weight,value,quantity,N,V):  #分解成完全背包和01背包
+    dp=[0]*(V+1)
+    weight.insert(0, 0)
+    value.insert(0, 0)
+    quantity.insert(0,0)
+    for i in range(1,N+1):
+        if quantity[i]*weight[i]>=V: #转化成完全背包
+            for j in range(weight[i],V+1):
+                dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
+        else: #转化成01背包
+            for j in range(V,weight[i]-1,-1):
+                for k in range(0,quantity[i]+1):
+                    if j>=k*weight[i]:
+                        dp[j]=max(dp[j],dp[j-k*weight[i]]+k*value[i])
+    return dp[V]
+
+
+def multiplePackage3(weight,value,quantity,N,V):
+    dp = [0] * (V + 1)
+    weight.insert(0, 0)
+    value.insert(0, 0)
+    quantity.insert(0, 0)
+    for i in range(1, N + 1):
+        if quantity[i] * weight[i] >= V:  # 转化成完全背包
+            for j in range(weight[i], V + 1):
+                dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
+        else:  # 转化成01背包二进制优化
+            k=1
+            while k<quantity[i]:
+                for j in range(V, k*weight[i] - 1, -1):
+                    dp[j] = max(dp[j], dp[j - k*weight[i]] + k*value[i])
+                quantity[i]-=k
+                k*=2
+                for j in range(V, quantity[i]*weight[i] - 1, -1):
+                    dp[j] = max(dp[j], dp[j - quantity[i]*weight[i]] + quantity[i]*value[i])
+    return dp[V]
+
+
+# def twoDPackage(weight,value,quantity,N,V):
+
+
+if __name__=="__main__":
+    weight = [2, 1, 3, 2]  # 物品重量
+    value = [3, 2, 4, 2]
+
+    weight2 = [1, 2, 3, 4]  # 物品重量
+    value2 = [2, 4, 4, 5]
+    quantity2 = [3, 1, 3, 2]
+    # res=zeroOnePackage(weight,value,4,5)
+    res = multiplePackage3(weight2, value2, quantity2, 4, 5)
+    print(res)
